@@ -4,11 +4,11 @@ local TMUX = os.getenv('TMUX')
 local TMUX_PANE = os.getenv('TMUX_PANE')
 
 local tmux_directions = {
-    p = 'l',
-    h = 'L',
-    k = 'U',
-    l = 'R',
-    j = 'D',
+    p = nil, -- Unsupported :(
+    h = 'left',
+    k = 'up',
+    l = 'right',
+    j = 'down',
 }
 
 ---Are we really using tmux
@@ -38,7 +38,13 @@ end
 ---For execting `tmux select-pane` command
 ---@param direction string
 function T.change_pane(direction)
-    return execute(string.format("select-pane -t '%s' -%s", TMUX_PANE, tmux_directions[direction]))
+    local cmd = '~/.config/awesome/awesomewm-vim-tmux-navigator/tmux_focus.sh ' .. tmux_directions[direction]
+
+    local handle = assert(io.popen(cmd), string.format('Navigator: Unable to execute > [%s]', cmd))
+    local result = handle:read()
+
+    handle:close()
+    return result
 end
 
 ---To check whether the tmux pane is zoomed
